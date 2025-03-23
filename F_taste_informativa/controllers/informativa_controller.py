@@ -61,7 +61,7 @@ class NutrizionistaInformativaPrivacy(Resource):
 
         return InformativaService.get_for_nutrizionista()
 
-        
+    #da provare    
     
     # Con il metodo post possiamo eseguire un'inserimento nel campo del link_informativa estesa
     # Di proprietà esclusiva del nutrizionista
