@@ -48,7 +48,7 @@ class InformativaService:
         session = get_session("patient")
         
         # Estraiamo la normativa del nutrizionista
-        informativa = InformativaRepository.get_last_privacy_policy_by_type(("paziente", session))
+        informativa = InformativaRepository.get_last_privacy_policy_by_type("paziente", session)
         # Gestiamo gli errori
         if informativa is None:
             session.close()
@@ -70,7 +70,7 @@ class InformativaService:
         session = get_session("dietitian")
         
         # Estraiamo la normativa del nutrizionista
-        informativa = InformativaRepository.get_last_privacy_policy_by_type(("nutrizionista", session))
+        informativa = InformativaRepository.get_last_privacy_policy_by_type("nutrizionista", session)
         # Gestiamo gli errori
         if informativa is None:
             session.close()
