@@ -78,28 +78,12 @@ class NutrizionistaInformativaPrivacy(Resource):
         
         # Identità del nutrizionista
         email_nutrizionista= get_jwt_identity()
+        link=json["link_informativa"]
         
-        return InformativaService.add_link_nutrizionista(email_nutrizionista,json)
-
-        # Reference alla sessione
-        session = get_session('dietitian')
+        return InformativaService.add_link_nutrizionista(email_nutrizionista,link)
         
 
-        # Reference al nutrizionista
-        nutrizionista = NutrizionistaModel.find_by_email(id, session)
-        # Se il nutrizionista non esiste gestiamo gli errori
-        if nutrizionista is None:
-            return {"message": "Nutrizionista non valido. Riprovare."}, 204
         
-        # Eseguiamo l'inserimento del link se il nutrizionista esiste
-        nutrizionista.link_informativa = json["link_informativa"]
-        # Committiamo la modifica
-        session.commit()
-        # Chiudiamo la sessione
-        session.close()
-
-        # Ritorniamo infine un messaggio di buona riuscita
-        return {"message" : "Associazione link informativa all'account eseguito con successo."}, 201
 
     
    

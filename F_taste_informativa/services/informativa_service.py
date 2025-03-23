@@ -1,6 +1,8 @@
 from F_taste_informativa.repositories.informativa_repository import InformativaRepository
 from F_taste_informativa.models.informativa_breve import InformativaBreveModel
 from F_taste_informativa.db import get_session
+from F_taste_informativa.kafka.kafka_producer import send_kafka_message
+from F_taste_informativa.utils.kafka_helpers import wait_for_kafka_response
 
 class InformativaService:
     
@@ -85,8 +87,20 @@ class InformativaService:
                 }, 200
     
     @staticmethod
-    def add_link_nutrizionista(email_nutrizionista,s_informativa):
-        # Reference alla sessione
-        session = get_session('dietitian')
+    def add_link_nutrizionista(email_nutrizionista,link):
         #tramite kafka cerca nutrizionista per email e se c'è aggiorna il campo link_informativa 
         #in base allo status code capisce che output fare(messaggio positivo o negativo)
+        message={"email_nutrizionista":email_nutrizionista,"link":link}
+        send_kafka_message("dietitian.addLink.request",message)
+        response=wait_for_kafka_response(["dietitian.addLink.success", "dietitian.addLink.failed"])
+        if response.get("status_code") == "201":
+            # Ritorniamo infine un messaggio di buona riuscita
+            return {"message" : "Associazione link informativa all'account eseguito con successo."}, 201
+        elif response.get("status_code") == "404":
+            return {"message": "Nutrizionista non valido. Riprovare."}, 204
+        elif response.get("status_code") == "400":
+            return {"message":"Dati mancanti per l'aggiornamento del link"}, 400
+        else:
+            return {"message":"Errore nell'aggiornamento del link"}, 500
+
+        
