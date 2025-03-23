@@ -4,6 +4,47 @@ from flask_jwt_extended import get_jwt, verify_jwt_in_request
 from redis import ConnectionError
 
 
+def paziente_required():
+    def wrapper(fn):
+        @wraps(fn)
+        def decorator(*args, **kwargs):
+            try:
+                verify_jwt_in_request()
+            except ConnectionError:
+                return {"message": "Connection error with Redis"}, 500
+            except Exception as e:
+                return {"message": "Unauthorized"}, 401
+            claims = get_jwt()
+            if claims["role"] == 'patient':
+                return fn(*args, **kwargs)
+            else:
+                raise NoAuthorizationException("Patient only")
+
+        return decorator
+
+    return wrapper
+
+def nutrizionista_required():
+        def wrapper(fn):
+            @wraps(fn)
+            def decorator(*args, **kwargs):
+                try:
+                    verify_jwt_in_request()
+                except ConnectionError:
+                    return {"message": "Connection error with Redis"}, 500
+                except:
+                    return {"message": "Unauthorized"}, 401
+                claims = get_jwt()
+                if claims["role"] == 'dietitian':
+                    return fn(*args, **kwargs)
+                else:
+                    raise NoAuthorizationException("Dietitian only!")
+
+            return decorator
+
+        return wrapper
+
+
 def admin_required():
     def wrapper(fn):
         @wraps(fn)
